@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.get_full_name() }} - Profile - SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- Profile Card -->
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if user.profile_image_url %}
+                    <img src="{{ user.profile_image_url }}" alt="Profile" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                    <i class="fas fa-user-circle fa-5x text-muted mb-3"></i>
+                    {% endif %}
+                    
+                    <h3 class="fw-bold">{{ user.get_full_name() }}</h3>
+                    
+                    {% if user.location %}
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-map-marker-alt me-1"></i>{{ user.location }}
+                    </p>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        {% if user.get_average_rating() > 0 %}
+                        <div class="rating">
+                            {% for i in range(1, 6) %}
+                                {% if i <= user.get_average_rating() %}
+                                <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                <i class="far fa-star text-muted"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-2 text-muted">({{ user.get_review_count() }} reviews)</span>
+                        </div>
+                        {% else %}
+                        <span class="text-muted">No reviews yet</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+                            <i class="fas fa-edit me-1"></i>Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            {% if user.contact_info %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-address-card me-2"></i>Contact Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ user.contact_info }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Stats -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Profile Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h5 class="text-primary mb-0">{{ skills_offered|length }}</h5>
+                            <small class="text-muted">Skills Offered</small>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="text-success mb-0">{{ skills_wanted|length }}</h5>
+                            <small class="text-muted">Skills Wanted</small>
+                        </div>
+                        <div class="col-6 mt-3">
+                            <h5 class="text-warning mb-0">{{ user.get_review_count() }}</h5>
+                            <small class="text-muted">Reviews</small>
+                        </div>
+                        <div class="col-6 mt-3">
+                            <h5 class="text-info mb-0">
+                                {% if user.get_average_rating() > 0 %}
+                                    {{ "%.1f"|format(user.get_average_rating()) }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </h5>
+                            <small class="text-muted">Avg Rating</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <!-- Bio Section -->
+            {% if user.bio %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>About Me
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ user.bio }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Skills Offered -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-graduation-cap me-2"></i>Skills I Can Teach
+                    </h5>
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-plus me-1"></i>Add Skill
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if skills_offered %}
+                        <div class="row g-3">
+                            {% for skill in skills_offered %}
+                            <div class="col-md-6">
+                                <div class="skill-card border rounded p-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="fw-bold mb-0">{{ skill.name }}</h6>
+                                        {% if skill.level %}
+                                        <span class="badge 
+                                            {% if skill.level == 'Beginner' %}bg-info{% endif %}
+                                            {% if skill.level == 'Intermediate' %}bg-warning{% endif %}
+                                            {% if skill.level == 'Advanced' %}bg-success{% endif %}
+                                            {% if skill.level == 'Expert' %}bg-primary{% endif %}
+                                            text-dark">
+                                            {{ skill.level }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    {% if skill.category %}
+                                    <small class="text-muted d-block mb-2">
+                                        <i class="fas fa-tag me-1"></i>{{ skill.category }}
+                                    </small>
+                                    {% endif %}
+                                    {% if skill.description %}
+                                    <p class="text-muted mb-0 small">{{ skill.description }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No skills added yet</h6>
+                            <p class="text-muted">Share your expertise with the community!</p>
+                            <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Add Your First Skill
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Skills Wanted -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-heart me-2"></i>Skills I Want to Learn
+                    </h5>
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-plus me-1"></i>Add Skill
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if skills_wanted %}
+                        <div class="row g-3">
+                            {% for skill in skills_wanted %}
+                            <div class="col-md-6">
+                                <div class="skill-card border rounded p-3">
+                                    <h6 class="fw-bold mb-2">{{ skill.name }}</h6>
+                                    {% if skill.category %}
+                                    <small class="text-muted d-block mb-2">
+                                        <i class="fas fa-tag me-1"></i>{{ skill.category }}
+                                    </small>
+                                    {% endif %}
+                                    {% if skill.description %}
+                                    <p class="text-muted mb-0 small">{{ skill.description }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-heart fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No learning goals added yet</h6>
+                            <p class="text-muted">Tell others what you'd like to learn!</p>
+                            <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Add Learning Goal
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reviews -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star me-2"></i>Reviews ({{ reviews|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if reviews %}
+                        {% for review in reviews %}
+                        <div class="review-item py-3 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="d-flex align-items-start">
+                                {% if review.reviewer.profile_image_url %}
+                                <img src="{{ review.reviewer.profile_image_url }}" alt="Profile" class="rounded-circle me-3" style="width: 48px; height: 48px; object-fit: cover;">
+                                {% else %}
+                                <i class="fas fa-user-circle fa-3x text-muted me-3"></i>
+                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">{{ review.reviewer.get_full_name() }}</h6>
+                                            <div class="rating">
+                                                {% for i in range(1, 6) %}
+                                                    {% if i <= review.rating %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                    {% else %}
+                                                    <i class="far fa-star text-muted"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}</small>
+                                    </div>
+                                    {% if review.comment %}
+                                    <p class="mb-0 text-muted">{{ review.comment }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No reviews yet</h6>
+                            <p class="text-muted">Complete some skill exchanges to start receiving reviews!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

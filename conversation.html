@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with {{ contact.get_full_name() }} - SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Chat Header -->
+            <div class="card mb-3">
+                <div class="card-body py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <a href="{{ url_for('messages') }}" class="btn btn-sm btn-secondary me-3">
+                                <i class="fas fa-arrow-left"></i>
+                            </a>
+                            {% if contact.profile_image_url %}
+                            <img src="{{ contact.profile_image_url }}" alt="Profile" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                            {% else %}
+                            <i class="fas fa-user-circle fa-3x text-muted me-3"></i>
+                            {% endif %}
+                            <div>
+                                <h5 class="fw-bold mb-1">{{ contact.get_full_name() }}</h5>
+                                {% if contact.location %}
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ contact.location }}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('user_profile', user_id=contact.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-user me-1"></i>View Profile
+                            </a>
+                            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#exchangeModal">
+                                <i class="fas fa-exchange-alt me-1"></i>Request Exchange
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="card mb-3">
+                <div class="card-body p-0">
+                    <div class="chat-messages" style="height: 400px; overflow-y: auto;">
+                        {% if messages %}
+                            {% for message in messages %}
+                            <div class="message-bubble p-3 {% if message.sender_id == current_user.id %}text-end{% endif %}">
+                                <div class="d-inline-block" style="max-width: 70%;">
+                                    {% if message.sender_id == current_user.id %}
+                                    <!-- Sent Message -->
+                                    <div class="bg-primary text-white rounded-3 p-3 mb-1">
+                                        {% if message.subject and message.subject.strip() %}
+                                        <div class="fw-bold mb-2 border-bottom border-light pb-2">{{ message.subject }}</div>
+                                        {% endif %}
+                                        <div>{{ message.content }}</div>
+                                    </div>
+                                    {% else %}
+                                    <!-- Received Message -->
+                                    <div class="bg-secondary rounded-3 p-3 mb-1">
+                                        {% if message.subject and message.subject.strip() %}
+                                        <div class="fw-bold mb-2 border-bottom pb-2">{{ message.subject }}</div>
+                                        {% endif %}
+                                        <div>{{ message.content }}</div>
+                                    </div>
+                                    {% endif %}
+                                    <small class="text-muted d-block mt-1">
+                                        {{ message.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Start the conversation</h5>
+                            <p class="text-muted">Send your first message to {{ contact.get_full_name() }}!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Form -->
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('send_message', user_id=contact.id) }}">
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject (Optional)</label>
+                            <input type="text" class="form-control" id="subject" name="subject" placeholder="What's this message about?">
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Message *</label>
+                            <textarea class="form-control" id="content" name="content" rows="3" placeholder="Type your message here..." required></textarea>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Be respectful and clear in your communication
+                            </small>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Exchange Request Modal -->
+<div class="modal fade" id="exchangeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Request Skill Exchange</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('request_exchange', user_id=contact.id) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="skill_requested" class="form-label">Skill You Want to Learn *</label>
+                        <select class="form-select" id="skill_requested" name="skill_requested" required>
+                            <option value="">Select a skill...</option>
+                            {% for skill in contact.skills_offered %}
+                            <option value="{{ skill.name }}">{{ skill.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Choose from {{ contact.get_full_name() }}'s available skills</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="skill_offered" class="form-label">Skill You Can Offer *</label>
+                        <select class="form-select" id="skill_offered" name="skill_offered" required>
+                            <option value="">Select a skill...</option>
+                            {% for skill in current_user.skills_offered %}
+                            <option value="{{ skill.name }}">{{ skill.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Choose from your available skills</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Message (Optional)</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Add a personal message about the exchange..."></textarea>
+                    </div>
+                    {% if not current_user.skills_offered.count() %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        You need to add skills to your profile before requesting an exchange.
+                        <a href="{{ url_for('edit_profile') }}" class="alert-link">Add skills here</a>.
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success" {% if not current_user.skills_offered.count() %}disabled{% endif %}>
+                        <i class="fas fa-exchange-alt me-1"></i>Send Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-scroll to bottom of messages on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const chatMessages = document.querySelector('.chat-messages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+});
+
+// Auto-resize textarea
+document.getElementById('content').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+});
+
+// Focus on message input
+document.getElementById('content').focus();
+</script>
+{% endblock %}

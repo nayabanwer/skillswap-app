@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}My Reviews - SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="display-6 fw-bold">
+                    <i class="fas fa-star me-2"></i>My Reviews
+                </h1>
+                <a href="{{ url_for('profile') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Reviews Summary -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h2 class="display-4 text-primary fw-bold">{{ current_user.get_review_count() }}</h2>
+                            <p class="text-muted mb-0">Total Reviews</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h2 class="display-4 text-warning fw-bold">
+                                {% if current_user.get_average_rating() > 0 %}
+                                    {{ "%.1f"|format(current_user.get_average_rating()) }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </h2>
+                            <p class="text-muted mb-0">Average Rating</p>
+                        </div>
+                        <div class="col-md-4">
+                            {% if current_user.get_average_rating() > 0 %}
+                            <div class="rating-display mb-2">
+                                {% for i in range(1, 6) %}
+                                    {% if i <= current_user.get_average_rating() %}
+                                    <i class="fas fa-star fa-2x text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star fa-2x text-muted"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <p class="text-muted mb-0">Overall Rating</p>
+                            {% else %}
+                            <h2 class="display-4 text-muted fw-bold">
+                                <i class="fas fa-star-o"></i>
+                            </h2>
+                            <p class="text-muted mb-0">No ratings yet</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">All Reviews</h5>
+                </div>
+                <div class="card-body">
+                    {% if reviews %}
+                        {% for review in reviews %}
+                        <div class="review-item py-3 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="d-flex align-items-start">
+                                {% if review.reviewer.profile_image_url %}
+                                <img src="{{ review.reviewer.profile_image_url }}" alt="Profile" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                {% else %}
+                                <i class="fas fa-user-circle fa-4x text-muted me-3"></i>
+                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">
+                                                <a href="{{ url_for('user_profile', user_id=review.reviewer.id) }}" class="text-decoration-none">
+                                                    {{ review.reviewer.get_full_name() }}
+                                                </a>
+                                            </h6>
+                                            <div class="rating mb-1">
+                                                {% for i in range(1, 6) %}
+                                                    {% if i <= review.rating %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                    {% else %}
+                                                    <i class="far fa-star text-muted"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <span class="ms-2 text-muted">({{ review.rating }}/5)</span>
+                                            </div>
+                                            {% if review.exchange %}
+                                            <small class="text-muted">
+                                                <i class="fas fa-exchange-alt me-1"></i>
+                                                Exchange: {{ review.exchange.skill_requested }} ↔ {{ review.exchange.skill_offered }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                        <small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}</small>
+                                    </div>
+                                    {% if review.comment %}
+                                    <div class="review-comment bg-secondary rounded p-3">
+                                        <p class="mb-0">{{ review.comment }}</p>
+                                    </div>
+                                    {% else %}
+                                    <p class="text-muted fst-italic mb-0">No written review provided.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Empty State -->
+                        <div class="text-center py-5">
+                            <i class="fas fa-star fa-5x text-muted mb-4"></i>
+                            <h4 class="fw-bold mb-3">No reviews yet</h4>
+                            <p class="text-muted mb-4">
+                                You haven't received any reviews yet. Start participating in skill exchanges<br>
+                                to begin building your reputation in the community!
+                            </p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <a href="{{ url_for('search') }}" class="btn btn-primary">
+                                    <i class="fas fa-search me-2"></i>Find Skills to Learn
+                                </a>
+                                <a href="{{ url_for('edit_profile') }}" class="btn btn-secondary">
+                                    <i class="fas fa-edit me-2"></i>Add Skills to Teach
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Review Breakdown -->
+            {% if reviews %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Rating Breakdown
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% set rating_counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0} %}
+                    {% for review in reviews %}
+                        {% set _ = rating_counts.update({review.rating: rating_counts[review.rating] + 1}) %}
+                    {% endfor %}
+                    
+                    {% for rating in [5, 4, 3, 2, 1] %}
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="me-2 fw-bold">{{ rating }}</span>
+                        <i class="fas fa-star text-warning me-2"></i>
+                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: {% if reviews|length > 0 %}{{ (rating_counts[rating] / reviews|length) * 100 }}{% else %}0{% endif %}%"></div>
+                        </div>
+                        <small class="text-muted">{{ rating_counts[rating] }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                        </a>
+                        <a href="{{ url_for('search') }}" class="btn btn-secondary">
+                            <i class="fas fa-search me-2"></i>Find New Skills
+                        </a>
+                        <a href="{{ url_for('edit_profile') }}" class="btn btn-secondary">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                        <a href="{{ url_for('messages') }}" class="btn btn-secondary">
+                            <i class="fas fa-envelope me-2"></i>Messages
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Building Your Reputation
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Be reliable:</strong> Show up on time for exchanges
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Be prepared:</strong> Come ready to teach or learn
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Be patient:</strong> Remember everyone learns differently
+                        </li>
+                        <li class="mb-0">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Be kind:</strong> Positive attitudes create better experiences
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

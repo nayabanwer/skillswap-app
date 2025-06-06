@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="display-6 fw-bold">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </h1>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('search') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Find Skills
+                    </a>
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-secondary">
+                        <i class="fas fa-edit me-1"></i>Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Active Exchanges -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exchange-alt me-2"></i>Active Exchanges
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if active_exchanges %}
+                        {% for exchange in active_exchanges %}
+                        <div class="exchange-item border-bottom py-3 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        {% if exchange.requester_id == current_user.id %}
+                                            <span class="badge bg-info me-2">Requested</span>
+                                            <strong>{{ exchange.skill_requested }}</strong>
+                                        {% else %}
+                                            <span class="badge bg-success me-2">Offering</span>
+                                            <strong>{{ exchange.skill_offered }}</strong>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-muted mb-1">
+                                        {% if exchange.requester_id == current_user.id %}
+                                            From: {{ exchange.provider.get_full_name() }}
+                                        {% else %}
+                                            To: {{ exchange.requester.get_full_name() }}
+                                        {% endif %}
+                                    </p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>{{ exchange.created_at.strftime('%B %d, %Y') }}
+                                    </small>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <span class="badge 
+                                        {% if exchange.status == 'pending' %}bg-warning{% endif %}
+                                        {% if exchange.status == 'accepted' %}bg-success{% endif %}
+                                        {% if exchange.status == 'completed' %}bg-info{% endif %}
+                                        text-dark">
+                                        {{ exchange.status.title() }}
+                                    </span>
+                                </div>
+                                <div class="col-md-3">
+                                    {% if exchange.status == 'pending' and exchange.provider_id == current_user.id %}
+                                        <form method="POST" action="{{ url_for('respond_to_exchange', exchange_id=exchange.id) }}" class="d-inline">
+                                            <button type="submit" name="action" value="accept" class="btn btn-sm btn-success me-1">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="submit" name="action" value="decline" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    {% elif exchange.status == 'accepted' %}
+                                        <form method="POST" action="{{ url_for('complete_exchange', exchange_id=exchange.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-check-circle me-1"></i>Complete
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if exchange.description %}
+                            <div class="mt-2">
+                                <small class="text-muted">{{ exchange.description }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No active exchanges</h5>
+                            <p class="text-muted">Start by searching for skills you'd like to learn!</p>
+                            <a href="{{ url_for('search') }}" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>Find Skills
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Sidebar -->
+        <div class="col-lg-4">
+            <!-- Recent Messages -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-envelope me-2"></i>Recent Messages
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_messages %}
+                        {% for message in recent_messages %}
+                        <div class="message-item py-2 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="d-flex align-items-start">
+                                {% if message.sender.profile_image_url %}
+                                <img src="{{ message.sender.profile_image_url }}" alt="Profile" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                {% else %}
+                                <i class="fas fa-user-circle fa-2x text-muted me-2"></i>
+                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <strong class="small">{{ message.sender.get_full_name() }}</strong>
+                                        <small class="text-muted">{{ message.created_at.strftime('%m/%d') }}</small>
+                                    </div>
+                                    <p class="mb-0 small text-muted">
+                                        {{ message.content[:50] }}{% if message.content|length > 50 %}...{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('messages') }}" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-envelope me-1"></i>View All
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-envelope fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No messages yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Your Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h4 class="text-primary mb-0">{{ current_user.skills_offered.count() }}</h4>
+                                <small class="text-muted">Skills Offered</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h4 class="text-success mb-0">{{ current_user.skills_wanted.count() }}</h4>
+                                <small class="text-muted">Skills Wanted</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mt-3">
+                            <div class="stat-item">
+                                <h4 class="text-warning mb-0">{{ current_user.get_review_count() }}</h4>
+                                <small class="text-muted">Reviews</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mt-3">
+                            <div class="stat-item">
+                                <h4 class="text-info mb-0">
+                                    {% if current_user.get_average_rating() > 0 %}
+                                        {{ "%.1f"|format(current_user.get_average_rating()) }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </h4>
+                                <small class="text-muted">Avg Rating</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Exchanges -->
+    {% if completed_exchanges %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>Recent Completed Exchanges
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for exchange in completed_exchanges %}
+                    <div class="exchange-item py-3 {% if not loop.last %}border-bottom{% endif %}">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <strong>{{ exchange.skill_requested }} ↔ {{ exchange.skill_offered }}</strong>
+                            </div>
+                            <div class="col-md-4">
+                                <span class="text-muted">
+                                    {% if exchange.requester_id == current_user.id %}
+                                        With: {{ exchange.provider.get_full_name() }}
+                                    {% else %}
+                                        With: {{ exchange.requester.get_full_name() }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="col-md-2">
+                                <small class="text-muted">{{ exchange.completed_at.strftime('%m/%d/%Y') }}</small>
+                            </div>
+                            <div class="col-md-2">
+                                {% set user_review = exchange.reviews|selectattr('reviewer_id', 'equalto', current_user.id)|first %}
+                                {% if not user_review %}
+                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#reviewModal{{ exchange.id }}">
+                                    <i class="fas fa-star me-1"></i>Review
+                                </button>
+
+                                <!-- Review Modal -->
+                                <div class="modal fade" id="reviewModal{{ exchange.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Leave a Review</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form method="POST" action="{{ url_for('leave_review', exchange_id=exchange.id) }}">
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Rating</label>
+                                                        <div class="rating-input">
+                                                            {% for i in range(1, 6) %}
+                                                            <input type="radio" name="rating" value="{{ i }}" id="rating{{ exchange.id }}_{{ i }}" required>
+                                                            <label for="rating{{ exchange.id }}_{{ i }}" class="star">
+                                                                <i class="fas fa-star"></i>
+                                                            </label>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="comment{{ exchange.id }}" class="form-label">Comment (optional)</label>
+                                                        <textarea class="form-control" id="comment{{ exchange.id }}" name="comment" rows="3"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <span class="text-success">
+                                    <i class="fas fa-check me-1"></i>Reviewed
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Rating input functionality
+document.querySelectorAll('.rating-input').forEach(ratingContainer => {
+    const inputs = ratingContainer.querySelectorAll('input[type="radio"]');
+    const labels = ratingContainer.querySelectorAll('.star');
+    
+    labels.forEach((label, index) => {
+        label.addEventListener('click', () => {
+            inputs[index].checked = true;
+            updateStars(ratingContainer, index + 1);
+        });
+        
+        label.addEventListener('mouseenter', () => {
+            updateStars(ratingContainer, index + 1);
+        });
+    });
+    
+    ratingContainer.addEventListener('mouseleave', () => {
+        const checkedInput = ratingContainer.querySelector('input[type="radio"]:checked');
+        const rating = checkedInput ? parseInt(checkedInput.value) : 0;
+        updateStars(ratingContainer, rating);
+    });
+});
+
+function updateStars(container, rating) {
+    const stars = container.querySelectorAll('.star i');
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('text-warning');
+            star.classList.remove('text-muted');
+        } else {
+            star.classList.add('text-muted');
+            star.classList.remove('text-warning');
+        }
+    });
+}
+</script>
+{% endblock %}

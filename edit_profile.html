@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Edit Profile
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- Basic Information -->
+                        <div class="section-header mb-4">
+                            <h5 class="fw-bold text-primary">
+                                <i class="fas fa-user me-2"></i>Basic Information
+                            </h5>
+                            <hr>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" value="{{ user.first_name or '' }}" readonly>
+                                <small class="text-muted">This is provided by your login account</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" value="{{ user.last_name or '' }}" readonly>
+                                <small class="text-muted">This is provided by your login account</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bio" class="form-label">Bio</label>
+                            <textarea class="form-control" id="bio" name="bio" rows="4" placeholder="Tell others about yourself, your interests, and your experience...">{{ user.bio or '' }}</textarea>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="location" class="form-label">Location</label>
+                                <input type="text" class="form-control" id="location" name="location" value="{{ user.location or '' }}" placeholder="City, Country">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="contact_info" class="form-label">Contact Information</label>
+                                <input type="text" class="form-control" id="contact_info" name="contact_info" value="{{ user.contact_info or '' }}" placeholder="How can people reach you?">
+                            </div>
+                        </div>
+
+                        <!-- Skills Offered -->
+                        <div class="section-header mb-4 mt-5">
+                            <h5 class="fw-bold text-success">
+                                <i class="fas fa-graduation-cap me-2"></i>Skills I Can Teach
+                            </h5>
+                            <hr>
+                        </div>
+
+                        <div id="skills-offered-container">
+                            {% for skill in skills_offered %}
+                            <div class="skill-offered-item border rounded p-3 mb-3">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Skill Name *</label>
+                                        <input type="text" class="form-control" name="skills_offered[]" value="{{ skill.name }}" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Category</label>
+                                        <select class="form-select" name="skills_categories[]">
+                                            <option value="">Select...</option>
+                                            <option value="Programming" {% if skill.category == 'Programming' %}selected{% endif %}>Programming</option>
+                                            <option value="Design" {% if skill.category == 'Design' %}selected{% endif %}>Design</option>
+                                            <option value="Languages" {% if skill.category == 'Languages' %}selected{% endif %}>Languages</option>
+                                            <option value="Music" {% if skill.category == 'Music' %}selected{% endif %}>Music</option>
+                                            <option value="Fitness" {% if skill.category == 'Fitness' %}selected{% endif %}>Fitness</option>
+                                            <option value="Cooking" {% if skill.category == 'Cooking' %}selected{% endif %}>Cooking</option>
+                                            <option value="Photography" {% if skill.category == 'Photography' %}selected{% endif %}>Photography</option>
+                                            <option value="Business" {% if skill.category == 'Business' %}selected{% endif %}>Business</option>
+                                            <option value="Arts & Crafts" {% if skill.category == 'Arts & Crafts' %}selected{% endif %}>Arts & Crafts</option>
+                                            <option value="Other" {% if skill.category == 'Other' %}selected{% endif %}>Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Level</label>
+                                        <select class="form-select" name="skills_levels[]">
+                                            <option value="Beginner" {% if skill.level == 'Beginner' %}selected{% endif %}>Beginner</option>
+                                            <option value="Intermediate" {% if skill.level == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+                                            <option value="Advanced" {% if skill.level == 'Advanced' %}selected{% endif %}>Advanced</option>
+                                            <option value="Expert" {% if skill.level == 'Expert' %}selected{% endif %}>Expert</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Description</label>
+                                        <input type="text" class="form-control" name="skills_descriptions[]" value="{{ skill.description or '' }}" placeholder="Brief description...">
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger btn-sm remove-skill" title="Remove skill">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            
+                            {% if not skills_offered %}
+                            <div class="skill-offered-item border rounded p-3 mb-3">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Skill Name *</label>
+                                        <input type="text" class="form-control" name="skills_offered[]" placeholder="e.g., Python Programming">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Category</label>
+                                        <select class="form-select" name="skills_categories[]">
+                                            <option value="">Select...</option>
+                                            <option value="Programming">Programming</option>
+                                            <option value="Design">Design</option>
+                                            <option value="Languages">Languages</option>
+                                            <option value="Music">Music</option>
+                                            <option value="Fitness">Fitness</option>
+                                            <option value="Cooking">Cooking</option>
+                                            <option value="Photography">Photography</option>
+                                            <option value="Business">Business</option>
+                                            <option value="Arts & Crafts">Arts & Crafts</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Level</label>
+                                        <select class="form-select" name="skills_levels[]">
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate" selected>Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Description</label>
+                                        <input type="text" class="form-control" name="skills_descriptions[]" placeholder="Brief description...">
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger btn-sm remove-skill" title="Remove skill">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <button type="button" id="add-skill-offered" class="btn btn-secondary btn-sm mb-4">
+                            <i class="fas fa-plus me-1"></i>Add Another Skill
+                        </button>
+
+                        <!-- Skills Wanted -->
+                        <div class="section-header mb-4 mt-5">
+                            <h5 class="fw-bold text-info">
+                                <i class="fas fa-heart me-2"></i>Skills I Want to Learn
+                            </h5>
+                            <hr>
+                        </div>
+
+                        <div id="skills-wanted-container">
+                            {% for skill in skills_wanted %}
+                            <div class="skill-wanted-item border rounded p-3 mb-3">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Skill Name *</label>
+                                        <input type="text" class="form-control" name="skills_wanted[]" value="{{ skill.name }}" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Category</label>
+                                        <select class="form-select" name="skills_wanted_categories[]">
+                                            <option value="">Select...</option>
+                                            <option value="Programming" {% if skill.category == 'Programming' %}selected{% endif %}>Programming</option>
+                                            <option value="Design" {% if skill.category == 'Design' %}selected{% endif %}>Design</option>
+                                            <option value="Languages" {% if skill.category == 'Languages' %}selected{% endif %}>Languages</option>
+                                            <option value="Music" {% if skill.category == 'Music' %}selected{% endif %}>Music</option>
+                                            <option value="Fitness" {% if skill.category == 'Fitness' %}selected{% endif %}>Fitness</option>
+                                            <option value="Cooking" {% if skill.category == 'Cooking' %}selected{% endif %}>Cooking</option>
+                                            <option value="Photography" {% if skill.category == 'Photography' %}selected{% endif %}>Photography</option>
+                                            <option value="Business" {% if skill.category == 'Business' %}selected{% endif %}>Business</option>
+                                            <option value="Arts & Crafts" {% if skill.category == 'Arts & Crafts' %}selected{% endif %}>Arts & Crafts</option>
+                                            <option value="Other" {% if skill.category == 'Other' %}selected{% endif %}>Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">What do you want to learn?</label>
+                                        <input type="text" class="form-control" name="skills_wanted_descriptions[]" value="{{ skill.description or '' }}" placeholder="Describe what you want to learn...">
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger btn-sm remove-skill-wanted" title="Remove skill">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            
+                            {% if not skills_wanted %}
+                            <div class="skill-wanted-item border rounded p-3 mb-3">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Skill Name *</label>
+                                        <input type="text" class="form-control" name="skills_wanted[]" placeholder="e.g., Guitar Playing">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Category</label>
+                                        <select class="form-select" name="skills_wanted_categories[]">
+                                            <option value="">Select...</option>
+                                            <option value="Programming">Programming</option>
+                                            <option value="Design">Design</option>
+                                            <option value="Languages">Languages</option>
+                                            <option value="Music">Music</option>
+                                            <option value="Fitness">Fitness</option>
+                                            <option value="Cooking">Cooking</option>
+                                            <option value="Photography">Photography</option>
+                                            <option value="Business">Business</option>
+                                            <option value="Arts & Crafts">Arts & Crafts</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">What do you want to learn?</label>
+                                        <input type="text" class="form-control" name="skills_wanted_descriptions[]" placeholder="Describe what you want to learn...">
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger btn-sm remove-skill-wanted" title="Remove skill">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <button type="button" id="add-skill-wanted" class="btn btn-secondary btn-sm mb-4">
+                            <i class="fas fa-plus me-1"></i>Add Another Learning Goal
+                        </button>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between pt-4 border-top">
+                            <a href="{{ url_for('profile') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add skill offered functionality
+document.getElementById('add-skill-offered').addEventListener('click', function() {
+    const container = document.getElementById('skills-offered-container');
+    const skillTemplate = `
+        <div class="skill-offered-item border rounded p-3 mb-3">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="form-label">Skill Name *</label>
+                    <input type="text" class="form-control" name="skills_offered[]" placeholder="e.g., Python Programming">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" name="skills_categories[]">
+                        <option value="">Select...</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Design">Design</option>
+                        <option value="Languages">Languages</option>
+                        <option value="Music">Music</option>
+                        <option value="Fitness">Fitness</option>
+                        <option value="Cooking">Cooking</option>
+                        <option value="Photography">Photography</option>
+                        <option value="Business">Business</option>
+                        <option value="Arts & Crafts">Arts & Crafts</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Level</label>
+                    <select class="form-select" name="skills_levels[]">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate" selected>Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                        <option value="Expert">Expert</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-control" name="skills_descriptions[]" placeholder="Brief description...">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger btn-sm remove-skill" title="Remove skill">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', skillTemplate);
+});
+
+// Add skill wanted functionality
+document.getElementById('add-skill-wanted').addEventListener('click', function() {
+    const container = document.getElementById('skills-wanted-container');
+    const skillTemplate = `
+        <div class="skill-wanted-item border rounded p-3 mb-3">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="form-label">Skill Name *</label>
+                    <input type="text" class="form-control" name="skills_wanted[]" placeholder="e.g., Guitar Playing">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" name="skills_wanted_categories[]">
+                        <option value="">Select...</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Design">Design</option>
+                        <option value="Languages">Languages</option>
+                        <option value="Music">Music</option>
+                        <option value="Fitness">Fitness</option>
+                        <option value="Cooking">Cooking</option>
+                        <option value="Photography">Photography</option>
+                        <option value="Business">Business</option>
+                        <option value="Arts & Crafts">Arts & Crafts</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">What do you want to learn?</label>
+                    <input type="text" class="form-control" name="skills_wanted_descriptions[]" placeholder="Describe what you want to learn...">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger btn-sm remove-skill-wanted" title="Remove skill">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', skillTemplate);
+});
+
+// Remove skill functionality
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.remove-skill')) {
+        const skillItem = e.target.closest('.skill-offered-item');
+        const container = document.getElementById('skills-offered-container');
+        if (container.children.length > 1) {
+            skillItem.remove();
+        }
+    }
+    
+    if (e.target.closest('.remove-skill-wanted')) {
+        const skillItem = e.target.closest('.skill-wanted-item');
+        const container = document.getElementById('skills-wanted-container');
+        if (container.children.length > 1) {
+            skillItem.remove();
+        }
+    }
+});
+</script>
+{% endblock %}

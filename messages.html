@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Messages - SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="display-6 fw-bold">
+                    <i class="fas fa-envelope me-2"></i>Messages
+                </h1>
+                <a href="{{ url_for('search') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Start New Conversation
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {% if conversations %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Conversations</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% for conversation in conversations %}
+                    <div class="conversation-item d-flex align-items-center p-3 border-bottom position-relative {% if not loop.last %}border-bottom{% endif %}">
+                        <a href="{{ url_for('conversation', user_id=conversation.contact.id) }}" class="text-decoration-none d-flex align-items-center w-100">
+                            <!-- Profile Image -->
+                            <div class="position-relative me-3">
+                                {% if conversation.contact.profile_image_url %}
+                                <img src="{{ conversation.contact.profile_image_url }}" alt="Profile" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+                                {% else %}
+                                <i class="fas fa-user-circle fa-4x text-muted"></i>
+                                {% endif %}
+                                {% if conversation.unread_count > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ conversation.unread_count }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Conversation Details -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="fw-bold mb-0 {% if conversation.unread_count > 0 %}text-primary{% endif %}">
+                                        {{ conversation.contact.get_full_name() }}
+                                    </h6>
+                                    {% if conversation.latest_message %}
+                                    <small class="text-muted">
+                                        {{ conversation.latest_message.created_at.strftime('%m/%d %I:%M %p') }}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if conversation.contact.location %}
+                                <small class="text-muted d-block mb-1">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ conversation.contact.location }}
+                                </small>
+                                {% endif %}
+                                
+                                {% if conversation.latest_message %}
+                                <p class="mb-0 text-muted small">
+                                    {% if conversation.latest_message.sender_id == current_user.id %}
+                                    <strong>You:</strong>
+                                    {% endif %}
+                                    {{ conversation.latest_message.content[:80] }}{% if conversation.latest_message.content|length > 80 %}...{% endif %}
+                                </p>
+                                {% else %}
+                                <p class="mb-0 text-muted small">No messages yet</p>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Action Indicator -->
+                            <div class="ms-2">
+                                <i class="fas fa-chevron-right text-muted"></i>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-5">
+                <i class="fas fa-envelope fa-5x text-muted mb-4"></i>
+                <h3 class="fw-bold mb-3">No conversations yet</h3>
+                <p class="text-muted mb-4">
+                    Start connecting with other members of the SkillSwap community!<br>
+                    Search for skills you want to learn and send a message to get started.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('search') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Find Skills
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tips Section -->
+    {% if conversations %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-secondary">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-lightbulb me-2"></i>Messaging Tips
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="tip-item mb-3">
+                                <h6 class="fw-bold">
+                                    <i class="fas fa-handshake me-2 text-success"></i>Be Respectful
+                                </h6>
+                                <p class="text-muted small mb-0">
+                                    Treat every conversation with respect and kindness. Remember, we're all here to learn and grow together.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="tip-item mb-3">
+                                <h6 class="fw-bold">
+                                    <i class="fas fa-clock me-2 text-warning"></i>Be Clear About Availability
+                                </h6>
+                                <p class="text-muted small mb-0">
+                                    Let others know when you're available for skill exchanges and what format works best for you.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="tip-item mb-3">
+                                <h6 class="fw-bold">
+                                    <i class="fas fa-star me-2 text-info"></i>Leave Reviews
+                                </h6>
+                                <p class="text-muted small mb-0">
+                                    After completing a skill exchange, leave a review to help build trust in our community.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add hover effects to conversation items
+document.querySelectorAll('.conversation-item').forEach(item => {
+    item.addEventListener('mouseenter', function() {
+        this.style.backgroundColor = 'var(--bs-secondary-bg)';
+        this.style.transition = 'background-color 0.2s ease';
+    });
+    
+    item.addEventListener('mouseleave', function() {
+        this.style.backgroundColor = '';
+    });
+});
+</script>
+{% endblock %}
