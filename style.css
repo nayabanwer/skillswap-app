@@ -1,0 +1,368 @@
+/* SkillSwap Custom Styles */
+
+/* Custom Properties */
+:root {
+    --skill-card-hover: 210 40% 98%; /* Light hover background */
+    --border-radius-lg: 12px;
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --transition-smooth: all 0.3s ease;
+}
+
+/* Global Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+}
+
+/* Enhanced Card Styles */
+.card {
+    border: none;
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition-smooth);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Skill Cards */
+.skill-card {
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    transition: var(--transition-smooth);
+    border-radius: var(--border-radius-lg);
+}
+
+.skill-card:hover {
+    border-color: var(--bs-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-soft);
+}
+
+/* User Cards in Search */
+.user-card {
+    transition: var(--transition-smooth);
+    border-radius: var(--border-radius-lg);
+}
+
+.user-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    z-index: 1;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.skill-icons i {
+    opacity: 0.8;
+    transition: var(--transition-smooth);
+}
+
+.skill-icons i:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Feature Cards */
+.feature-icon {
+    transition: var(--transition-smooth);
+}
+
+.card:hover .feature-icon {
+    transform: scale(1.1);
+}
+
+/* Category Cards */
+.category-card {
+    transition: var(--transition-smooth);
+    cursor: pointer;
+}
+
+.category-card:hover {
+    transform: translateY(-2px);
+    background: var(--bs-primary) !important;
+    color: white !important;
+}
+
+.category-card:hover i {
+    color: white !important;
+}
+
+/* Message Bubbles */
+.message-bubble {
+    margin-bottom: 0.5rem;
+}
+
+.chat-messages {
+    padding: 1rem;
+    background: linear-gradient(to bottom, var(--bs-body-bg) 0%, var(--bs-secondary-bg) 100%);
+}
+
+/* Rating Stars */
+.rating i {
+    transition: color 0.2s ease;
+}
+
+.rating-input .star {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--bs-secondary);
+    transition: color 0.2s ease;
+}
+
+.rating-input .star:hover,
+.rating-input .star.active {
+    color: var(--bs-warning) !important;
+}
+
+/* Exchange Status Badges */
+.badge {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+}
+
+/* Profile Image Styles */
+.profile-image-lg {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 3px solid var(--bs-border-color);
+    transition: var(--transition-smooth);
+}
+
+.profile-image-lg:hover {
+    border-color: var(--bs-primary);
+    transform: scale(1.05);
+}
+
+/* Navigation Enhancements */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: var(--transition-smooth);
+}
+
+.nav-link:hover {
+    transform: translateY(-1px);
+}
+
+/* Button Enhancements */
+.btn {
+    font-weight: 500;
+    border-radius: 8px;
+    transition: var(--transition-smooth);
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.125rem;
+}
+
+/* Form Enhancements */
+.form-control,
+.form-select {
+    border-radius: 8px;
+    border: 2px solid var(--bs-border-color);
+    transition: var(--transition-smooth);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Section Headers */
+.section-header h5 {
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.section-header hr {
+    margin-top: 0;
+    border-color: var(--bs-primary);
+    border-width: 2px;
+}
+
+/* Conversation Items */
+.conversation-item {
+    transition: var(--transition-smooth);
+    cursor: pointer;
+}
+
+.conversation-item:hover {
+    background-color: var(--bs-secondary-bg);
+}
+
+/* Loading States */
+.loading {
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--bs-primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        text-align: center;
+    }
+    
+    .skill-icons {
+        margin-top: 2rem;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .user-card {
+        margin-bottom: 1rem;
+    }
+    
+    .chat-messages {
+        height: 300px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.slide-up {
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Utility Classes */
+.text-shadow {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 100%);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, var(--bs-secondary) 0%, var(--bs-dark) 100%);
+}
+
+/* Custom Scrollbar */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: var(--bs-secondary-bg);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--bs-border-color);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: var(--bs-secondary);
+}
+
+/* Print Styles */
+@media print {
+    .btn,
+    .navbar,
+    .modal,
+    footer {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .container {
+        max-width: none !important;
+    }
+}
